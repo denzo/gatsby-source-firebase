@@ -13,7 +13,8 @@ exports.sourceNodes = (
     databaseURL: databaseURL
   })
 
-  const db = firebase.database()
+  const db = firebase.firestore()
+  db.settings({ timestampsInSnapshots: true })
 
   const start = Date.now()
 
@@ -23,7 +24,7 @@ exports.sourceNodes = (
         console.log(`\n[Firebase Source] Fetching data for ${type}...`)
       }
 
-      query(db.ref(path)).once("value", snapshot => {
+      firebase.firestore().collection(`${path}`).get().then(querySnapshot => {
         if (!quiet) {
           console.log(
             `\n[Firebase Source] Data for ${type} loaded in`,
@@ -32,7 +33,7 @@ exports.sourceNodes = (
           )
         }
 
-        const val = snapshot.val()
+        const val = querySnapshot
 
         Object.keys(val).forEach(key => {
           const node = map(Object.assign({}, val[key]))
